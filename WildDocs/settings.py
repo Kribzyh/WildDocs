@@ -7,36 +7,53 @@ import os
 from dotenv import load_dotenv
 import dj_database_url
 
+# ---------------------------------------------------------------------
 # Load environment variables
+# ---------------------------------------------------------------------
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# ---------------------------------------------------------------------
+# Base Directory
+# ---------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-0y$vp&@l-h)yylg#lr2e9h!d9+$p9*)@96(f8lh+b24xmt0*@0')
+# ---------------------------------------------------------------------
+# Security
+# ---------------------------------------------------------------------
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-0y$vp&@l-h)yylg#lr2e9h!d9+$p9*)@96(f8lh+b24xmt0*@0'
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*.supabase.co']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.supabase.co',
+]
 
-
-# Application definition
-
+# ---------------------------------------------------------------------
+# Installed Applications
+# ---------------------------------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sessions',
-    "accounts",
-    "index",
-    "dashboard",
-    "request",
+
+    # Local apps
+    'accounts',
+    'index',
+    'dashboard',
+    'request',
 ]
 
+# ---------------------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,8 +64,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# ---------------------------------------------------------------------
+# URL & WSGI Configuration
+# ---------------------------------------------------------------------
 ROOT_URLCONF = 'WildDocs.urls'
+WSGI_APPLICATION = 'WildDocs.wsgi.application'
 
+# ---------------------------------------------------------------------
+# Templates
+# ---------------------------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -66,75 +90,71 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'WildDocs.wsgi.application'
+# ---------------------------------------------------------------------
+# Database Configuration (Supabase)
+# ---------------------------------------------------------------------
+DATABASE_URL = os.getenv(
+    'DATABASE_URL',
+    'postgresql://postgres:WildDocs676767%40@db.zbuxrlmqqxcxqxiwkapy.supabase.co:5432/postgres?sslmode=require'
+)
 
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL not found. Please set it in your .env file.")
 
-# Database configuration using Supabase Session Pooler
 DATABASES = {
-    "default": dj_database_url.config(
-        default="sqlite:///db.sqlite3",
-        conn_max_age=600,  # persistent connections
-        ssl_require=True   # enforce SSL
-    )
+    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
 }
 
+# ---------------------------------------------------------------------
+# Supabase API Keys (optional - for auth or storage)
+# ---------------------------------------------------------------------
+SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://zbuxrlmqqxcxqxiwkapy.supabase.co')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
+SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_KEY', '')
 
-# Supabase Configuration
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
-SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_KEY')
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
+# ---------------------------------------------------------------------
+# Password Validation
+# ---------------------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
+# ---------------------------------------------------------------------
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
+# ---------------------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
+# ---------------------------------------------------------------------
+# Static Files
+# ---------------------------------------------------------------------
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "index/static",
     BASE_DIR / "dashboard/static",
     BASE_DIR / "request/static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Media (for uploaded profile pictures) - Update for Supabase Storage
+# ---------------------------------------------------------------------
+# Media Files (for uploaded profile pictures)
+# ---------------------------------------------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# ---------------------------------------------------------------------
+# Authentication Redirects
+# ---------------------------------------------------------------------
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# ---------------------------------------------------------------------
+# Default Primary Key Field
+# ---------------------------------------------------------------------
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
